@@ -84,13 +84,6 @@ func main() {
 	for i, problem := range problems {
 		fmt.Printf("Question %d: %s =  \n", i, problem.question)
 
-		timeoutChannel := make(chan struct{}, 1)
-
-		go func(waitSeconds int) {
-			time.Sleep(time.Duration(waitSeconds) * time.Second)
-			close(timeoutChannel)
-		}(*timerPtr)
-
 		go func() {
 			text, err := stdInReader.ReadString('\n')
 
@@ -118,8 +111,7 @@ func main() {
 				score++
 			}
 
-		case <-timeoutChannel:
-			fmt.Printf("Destroyed coroutine")
+		case <-time.After(time.Duration(*timerPtr) * time.Second):
 			resultFlag = "TIMEOUT"
 		}
 
