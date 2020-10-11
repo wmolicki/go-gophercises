@@ -1,30 +1,27 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <link rel="stylesheet" href="/static/css/main.css" />
-    </head>
 
-    <body></body>
-    <h1>Choose your own adventure!</h1>
+<head>
+    <link rel="stylesheet" href="/static/css/main.css" />
+</head>
+
+<body class="body">
+    <h1>{{ .Title }}</h1>
     {{ range .Story }}
     <p>{{ . }}</p>
     {{ end }}
     {{ if .Options }}
     <h2>What are you going to do?</h2>
     {{ else }}
-    <form action="/?next=intro">
-        <input type="submit" value="Start over" />
-    </form>
+    <a href="/?next=intro">Start over</a>
     {{ end }}
-    <form action="/">
-        <div class="parent">
+    <ul>
         {{ range .Options }}
-            <div class="child">
-                <p>{{ .Text }}</p>
-                <input type="submit" name="next" value="{{ .ArcName }}"></input>
-            </div>
+        <li>
+            <a href="/?next={{ .ArcName }}">{{ .Text }}</a>
+        </li>
         {{ end }}
-        </div>
-    </form>
-    </body>
+    </ul>
+</body>
+
 </html>
