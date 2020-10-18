@@ -1,10 +1,8 @@
-package main
+package parser
 
 import (
-	"flag"
 	"io"
 	"log"
-	"os"
 	"strings"
 
 	"golang.org/x/net/html"
@@ -76,23 +74,4 @@ func Parse(reader io.Reader) []Link {
 	links := getLinksFromRootNode(root)
 
 	return links
-}
-
-func main() {
-	htmlFilePtr := flag.String("f", "", "path to html file")
-	flag.Parse()
-	if *htmlFilePtr == "" {
-		log.Fatalf("you have to provide path to html file")
-	}
-
-	reader, err := os.Open(*htmlFilePtr)
-	if err != nil {
-		log.Fatalf("could not open file %s: %v", *htmlFilePtr, err)
-	}
-
-	links := Parse(reader)
-
-	for i, link := range links {
-		log.Printf("%d: %s -> %s", i, link.Text, link.Href)
-	}
 }
