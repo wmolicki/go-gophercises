@@ -33,7 +33,7 @@ func getText(node *html.Node) string {
 
 	f(node)
 
-	return strings.TrimSpace(text)
+	return strings.Join(strings.Fields(text), " ")
 }
 
 func getLinkFromANode(aNode *html.Node) Link {
@@ -49,26 +49,25 @@ func getLinkFromANode(aNode *html.Node) Link {
 func getLinksFromRootNode(root *html.Node) []Link {
 	result := []Link{}
 
-	var f func(*html.Node, bool)
+	var f func(*html.Node)
 
-	f = func(node *html.Node, gotLink bool) {
+	f = func(node *html.Node) {
 
-		if !gotLink && node.Type == html.ElementNode && node.Data == "a" {
+		if node.Type == html.ElementNode && node.Data == "a" {
 			result = append(result, getLinkFromANode(node))
-			gotLink = true
 		}
 
 		for child := node.FirstChild; child != nil; child = child.NextSibling {
-			f(child, gotLink)
+			f(child)
 		}
 	}
 
-	f(root, false)
+	f(root)
 
 	return result
 }
 
-func getLinks(reader io.Reader) []Link {
+func Parse(reader io.Reader) []Link {
 	root, err := html.Parse(reader)
 	if err != nil {
 		log.Fatalf("could not load html tree: %v", err)
@@ -88,10 +87,10 @@ func main() {
 
 	reader, err := os.Open(*htmlFilePtr)
 	if err != nil {
-		log.Fatalf("could not open file: %v", *htmlFilePtr, err)
+		log.Fatalf("could not open file %s: %v", *htmlFilePtr, err)
 	}
 
-	links := getLinks(reader)
+	links := Parse(reader)
 
 	for i, link := range links {
 		log.Printf("%d: %s -> %s", i, link.Text, link.Href)

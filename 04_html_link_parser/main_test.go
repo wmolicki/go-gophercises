@@ -46,17 +46,12 @@ func TestSimpleMarkup(t *testing.T) {
 			"<a href=\"onet.pl\">I am <strong>strong</strong> and awesome</a>",
 			[]Link{Link{Href: "onet.pl", Text: "I am strong and awesome"}},
 		},
-		TestCase{
-			"should skip nested links",
-			"<a href=\"test.com\">xyz <a href=\"zoo.it\">aaa</a></a>",
-			[]Link{Link{Href: "test.com", Text: "xyz"}},
-		},
 	}
 
 	for _, testCase := range cases {
 		t.Run(testCase.description, func(t *testing.T) {
 			reader := strings.NewReader(testCase.input)
-			got := getLinks(reader)
+			got := Parse(reader)
 			want := testCase.want
 
 			if !eq(t, want, got) {
@@ -111,7 +106,7 @@ func TestExampleFiles(t *testing.T) {
 				t.Errorf("could not load test file %s: %v", testCase.filename, err)
 			}
 
-			got := getLinks(reader)
+			got := Parse(reader)
 
 			if !eq(t, testCase.want, got) {
 				t.Errorf("want: %v, got: %v", testCase.want, got)
