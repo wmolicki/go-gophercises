@@ -1,4 +1,4 @@
-module github.com/wmolicki/go-gophercises/04_html_link_parser
+module github.com/wmolicki/gophercises
 
 go 1.14
 
