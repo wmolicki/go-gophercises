@@ -16,19 +16,27 @@ import (
 )
 
 func BuildSitemap(url string) io.Reader {
-	urls := build(url)
+	return BuildSitemapLimited(url, -1)
+}
+
+func BuildSitemapLimited(url string, depth int) io.Reader {
+	urls := build(url, depth)
 	s := encodeIntoSitemapXml(urls)
 	return strings.NewReader(s)
 }
 
-func build(baseUrl string) []string {
+func build(baseUrl string, maxDepth int) []string {
 
 	result := []string{}
 	visited := make(map[string]bool)
 
-	var f func(string)
+	var f func(string, int)
 
-	f = func(u string) {
+	f = func(u string, currentDepth int) {
+
+		if currentDepth > maxDepth {
+			return
+		}
 
 		u = normalizeUrl(baseUrl, u)
 
@@ -43,12 +51,12 @@ func build(baseUrl string) []string {
 			if !visited[url] {
 				visited[url] = true
 				result = append(result, url)
-				f(url)
+				f(url, currentDepth+1)
 			}
 		}
 	}
 
-	f(baseUrl)
+	f(baseUrl, 0)
 
 	return result
 }
@@ -145,12 +153,16 @@ func fetch(url string) (io.Reader, error) {
 func main() {
 	fmt.Println("sitemap")
 	link := flag.String("t", "", "target site to map")
+	maxDepth := flag.Int("d", -1, "max depth to parse")
 	flag.Parse()
 	if *link == "" {
 		log.Fatalf("Target site flag required")
 	}
+	if *maxDepth  < -1 {
+		log.Fatalf("Max depth should be from range [-1, inf]")
+	}
 	fmt.Printf("Preparing site map for %s\n", *link)
 
-	r := BuildSitemap(*link)
+	r := BuildSitemapLimited(*link, *maxDepth)
 	io.Copy(os.Stdout, r)
 }
