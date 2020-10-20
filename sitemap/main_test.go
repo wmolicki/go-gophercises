@@ -9,13 +9,11 @@ type TestCase struct {
 	Result      bool
 }
 
-
 type NormalizeUrlTestCase struct {
-	url string
-	base string
+	url        string
+	base       string
 	normalized string
 }
-
 
 func TestNormalizeUrl(t *testing.T) {
 	testCases := []NormalizeUrlTestCase{

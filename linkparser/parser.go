@@ -13,7 +13,6 @@ type Link struct {
 	Text string
 }
 
-
 func Parse(reader io.Reader) []Link {
 	root, err := html.Parse(reader)
 	if err != nil {
@@ -24,7 +23,6 @@ func Parse(reader io.Reader) []Link {
 
 	return links
 }
-
 
 func getText(node *html.Node) string {
 	// if element node, go inside this node
@@ -51,7 +49,7 @@ func getLinkFromANode(aNode *html.Node) Link {
 	link := Link{Text: getText(aNode)}
 	for _, attr := range aNode.Attr {
 		if attr.Key == "href" {
-			link.Href = attr.Val
+			link.Href = strings.Join(strings.Fields(attr.Val), "")
 		}
 	}
 	return link
@@ -77,4 +75,3 @@ func getLinksFromRootNode(root *html.Node) []Link {
 
 	return result
 }
-

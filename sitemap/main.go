@@ -31,11 +31,11 @@ func Build(baseUrl string) []string {
 
 		links := linkparser.Parse(body)
 
-		for _, link := range getLinksFromSameDomain(baseUrl, links) {
-			if !visited[link.Href] {
-				visited[link.Href] = true
-				result = append(result, link.Href)
-				f(link.Href)
+		for _, url := range getUrlsFromSameDomain(baseUrl, links) {
+			if !visited[url] {
+				visited[url] = true
+				result = append(result, url)
+				f(url)
 			}
 		}
 	}
@@ -45,10 +45,13 @@ func Build(baseUrl string) []string {
 	return result
 }
 
-func getLinksFromSameDomain(base string, links []linkparser.Link) (out []linkparser.Link) {
+func getUrlsFromSameDomain(base string, links []linkparser.Link) (out []string) {
 	for _, link := range links {
-		if sameDomain(base, link.Href) {
-			out = append(out, link)
+		if fi := strings.IndexAny(link.Href, "#"); fi != -1 {
+			link.Href = link.Href[:fi]
+		}
+		if link.Href != "" && sameDomain(base, link.Href) {
+			out = append(out, link.Href)
 		}
 	}
 	return out
@@ -57,8 +60,9 @@ func getLinksFromSameDomain(base string, links []linkparser.Link) (out []linkpar
 func normalizeUrl(base, u string) string {
 	baseUrl, err := url.Parse(base)
 	if err != nil {
-		log.Fatalf("could not parse %s: %v", base, err)
+		log.Fatalf("could not parse base %s: %v", base, err)
 	}
+
 	uUrl, err := url.Parse(u)
 	if err != nil {
 		log.Fatalf("could not parse %s: %v", u, err)
@@ -117,6 +121,6 @@ func main() {
 	fmt.Printf("Preparing site map for %s\n", *link)
 
 	for i, a := range Build(*link) {
-		fmt.Printf("%d: %s", i, a)
+		fmt.Printf("%d: %s\n", i+1, a)
 	}
 }
