@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
 	"io"
@@ -45,13 +46,36 @@ func Build(baseUrl string) []string {
 	return result
 }
 
+type Sitemap struct {
+	XMLName xml.Name `xml:"urlset"`
+	NS      string   `xml:"xmlns,attr"`
+	Urls    []Url    `xml:"url"`
+}
+
+type Url struct {
+	XMLName xml.Name `xml:"url"`
+	Loc     string   `xml:"loc"`
+}
+
+func encodeIntoSitemapXml(urls []string) string {
+	sitemap := &Sitemap{NS: "http://www.sitemaps.org/schemas/sitemap/0.9"}
+	for _, url := range urls {
+		sitemap.Urls = append(sitemap.Urls, Url{Loc: url})
+	}
+	data, err := xml.MarshalIndent(sitemap, "", "  ")
+	if err != nil {
+		log.Fatalf("could not marshal urls into sitemap: %v", err)
+	}
+	return xml.Header + string(data)
+}
+
 func getUrlsFromSameDomain(base string, links []linkparser.Link) (out []string) {
 	for _, link := range links {
 		if fi := strings.IndexAny(link.Href, "#"); fi != -1 {
 			link.Href = link.Href[:fi]
 		}
 		if link.Href != "" && sameDomain(base, link.Href) {
-			out = append(out, link.Href)
+			out = append(out, normalizeUrl(base, link.Href))
 		}
 	}
 	return out
@@ -120,7 +144,7 @@ func main() {
 	}
 	fmt.Printf("Preparing site map for %s\n", *link)
 
-	for i, a := range Build(*link) {
-		fmt.Printf("%d: %s\n", i+1, a)
-	}
+	urls := Build(*link)
+
+	fmt.Println(encodeIntoSitemapXml(urls))
 }
