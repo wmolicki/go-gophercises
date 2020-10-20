@@ -13,6 +13,19 @@ type Link struct {
 	Text string
 }
 
+
+func Parse(reader io.Reader) []Link {
+	root, err := html.Parse(reader)
+	if err != nil {
+		log.Fatalf("could not load html tree: %v", err)
+	}
+
+	links := getLinksFromRootNode(root)
+
+	return links
+}
+
+
 func getText(node *html.Node) string {
 	// if element node, go inside this node
 
@@ -65,13 +78,3 @@ func getLinksFromRootNode(root *html.Node) []Link {
 	return result
 }
 
-func Parse(reader io.Reader) []Link {
-	root, err := html.Parse(reader)
-	if err != nil {
-		log.Fatalf("could not load html tree: %v", err)
-	}
-
-	links := getLinksFromRootNode(root)
-
-	return links
-}
