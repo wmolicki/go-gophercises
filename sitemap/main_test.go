@@ -45,6 +45,7 @@ func TestSameDomain(t *testing.T) {
 		TestCase{"different domain", "https://wp.pl", "https://onet.pl", false},
 		TestCase{"no scheme", "wp.pl", "https://wp.pl", true},
 		TestCase{"path link and domain", "https://wp.pl", "/abc", true},
+		TestCase{"path link no forward slash", "https://wp.pl", "abc", true},
 	}
 
 	for _, testCase := range testCases {

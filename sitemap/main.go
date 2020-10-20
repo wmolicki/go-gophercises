@@ -80,7 +80,7 @@ func normalizeUrl(base, u string) string {
 func sameDomain(u1, u2 string) bool {
 	// Returns whether u2 is in the same domain as u1.
 
-	if u2[0] == '/' {
+	if u2[0] == '/' || strings.IndexAny(u2, ".") == -1 {
 		// path links are always in the same domain
 		return true
 	}
