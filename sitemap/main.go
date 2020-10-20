@@ -8,13 +8,20 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/wmolicki/gophercises/linkparser"
 )
 
-func Build(baseUrl string) []string {
+func BuildSitemap(url string) io.Reader {
+	urls := build(url)
+	s := encodeIntoSitemapXml(urls)
+	return strings.NewReader(s)
+}
+
+func build(baseUrl string) []string {
 
 	result := []string{}
 	visited := make(map[string]bool)
@@ -144,7 +151,6 @@ func main() {
 	}
 	fmt.Printf("Preparing site map for %s\n", *link)
 
-	urls := Build(*link)
-
-	fmt.Println(encodeIntoSitemapXml(urls))
+	r := BuildSitemap(*link)
+	io.Copy(os.Stdout, r)
 }
